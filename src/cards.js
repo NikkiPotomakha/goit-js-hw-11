@@ -1,5 +1,5 @@
-export function createCard(params) {
-  return params
+export function createMarkup(arr) {
+  return arr
     .map(
       ({
         largeImageURL,
@@ -9,7 +9,8 @@ export function createCard(params) {
         views,
         comments,
         downloads,
-      }) =>
+      }) => {
+        return;
         `
             <div class="photo-card">
               <a href="${largeImageURL}">
@@ -22,7 +23,8 @@ export function createCard(params) {
                 </div>
               </a>
             </div>
-              `
+              `;
+      }
     )
     .join('');
 }
