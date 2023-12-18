@@ -2,33 +2,38 @@ export function createMarkup(arr) {
   return arr
     .map(
       ({
-        largeImageURL,
         webformatURL,
+        largeImageURL,
         tags,
         likes,
         views,
         comments,
         downloads,
-      }) => {
-        return;
-        `
-            <div class="photo-card">
-              <a href="${largeImageURL}">
-                <img src="${webformatURL}" alt="${tags}" loading="lazy" width="300px" />
-                <div class="info">
-                  <p class="info-item"><b>Likes</b><br/><b>${likes}</b></p>
-                  <p class="info-item"><b>Views</b><br/><b>${views}</b></p>
-                  <p class="info-item"><b>Comments</b><br/><b>${comments}</b></p>
-                  <p class="info-item"><b>Downloads</b><br/><b>${downloads}</b></p>
-                </div>
-              </a>
-            </div>
-              `;
-      }
+      }) => `
+      <div class="photo-card">
+      <a class="gallery-link" href="${largeImageURL}">
+        <img class="gallery__image" src="${webformatURL}" alt="${tags}" loading="lazy" />
+      </a>
+      <div class="info">
+        <p class="info-item">
+          <b>Likes:</b>
+          ${likes}
+        </p>
+        <p class="info-item">
+          <b>Views:</b>
+          ${views}
+        </p>
+        <p class="info-item">
+          <b>Comments:</b>
+          ${comments}
+        </p>
+        <p class="info-item">
+          <b>Downloads:</b>
+          ${downloads}
+        </p>
+      </div>
+    </div>
+    `
     )
     .join('');
 }
-export let lightbox = new SimpleLightbox('.gallery a', {
-  captionsData: 'alt',
-  captionDelay: 250,
-});
