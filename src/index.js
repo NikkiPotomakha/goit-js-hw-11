@@ -1,4 +1,7 @@
-import { lightbox } from './simplelightbox';
+//import { lightbox } from './simplelightbox';
+import SimpleLightbox from 'simplelightbox';
+
+import 'simplelightbox/dist/simple-lightbox.min.css';
 
 import { createMarkup } from './cards';
 
@@ -7,7 +10,7 @@ import { getData } from './pixabay';
 import Notiflix from 'notiflix';
 
 const gallery = document.querySelector('.gallery');
-const loadMoreBtn = document.querySelector('.load-more');
+const loadMore = document.querySelector('.load-more');
 const form = document.querySelector('.search-form');
 
 const options = {
@@ -22,6 +25,11 @@ let maxPages;
 let currentPage;
 let searchQuery = '';
 let firstSearch = true;
+
+const lightbox = new SimpleLightbox('.gallery a', {
+  captionsData: 'alt',
+  captionDelay: 250,
+});
 
 form.addEventListener('submit', handleSubmit);
 
