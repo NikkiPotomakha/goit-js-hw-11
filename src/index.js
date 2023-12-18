@@ -10,7 +10,9 @@ const gallery = document.querySelector('.gallery');
 const loadMore = document.querySelector('.load-more');
 let page = 1;
 let currentSum = 0;
-//
+
+loadMore.classList.add('visibility-hidden');
+
 const lightbox = new SimpleLightbox('.gallery a', {
   captionsData: 'alt',
   captionDelay: 250,
@@ -36,6 +38,7 @@ function onValueSubmit(event) {
     return Notiflix.Notify.failure('All fields must be filled!');
   }
   localStorage.setItem('key', enteredValue);
+  page = 1;
   render();
   form.reset();
 }
