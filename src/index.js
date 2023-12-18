@@ -1,94 +1,89 @@
-//import { lightbox } from './simplelightbox';
 import SimpleLightbox from 'simplelightbox';
 
 import 'simplelightbox/dist/simple-lightbox.min.css';
+
+import {
+  success,
+  warning,
+  info,
+  error,
+  loading,
+  removeLoading,
+} from './notiflix';
 
 import { createMarkup } from './cards';
 
 import { getData } from './pixabay';
 
-import Notiflix from 'notiflix';
-
 const gallery = document.querySelector('.gallery');
-const loadMore = document.querySelector('.load-more');
+const load = document.querySelector('.load-more');
 const form = document.querySelector('.search-form');
 
-const options = {
-  root: null,
-  rootMargin: '300px',
-  threshold: 0,
-};
+let page = 1;
 
-const observer = new IntersectionObserver(handlePagination, options);
+let searchQuery = '';
 
 let maxPages;
-let currentPage;
-let searchQuery = '';
-let firstSearch = true;
 
-const lightbox = new SimpleLightbox('.gallery a', {
-  captionsData: 'alt',
-  captionDelay: 250,
-});
+load.style.visibility = 'hidden';
 
-form.addEventListener('submit', handleSubmit);
+form.addEventListener('submit', onSub);
 
-async function handleSubmit(evt) {
-  evt.preventDefault();
+load.addEventListener('click', onLoad);
 
-  lightbox.refresh();
-  searchQuery = form.elements.searchQuery.value;
+async function onSub(event) {
+  event.preventDefault();
+
   gallery.innerHTML = '';
-  currentPage = 1;
 
-  if (searchQuery === '' || searchQuery.trim() === '') {
-    Notiflix.Notify.warning(
-      "We're sorry, but you've reached the end of search results."
-    );
-    return;
-  }
+  page = 1;
 
-  Notiflix.Loading.circle('Loading...');
+  searchQuery = event.currentTarget.elements.searchQuery.value.trim();
+  loading();
+
   try {
-    Notiflix.Loading.remove();
-    const { totalHits, hits } = await getData(searchQuery.trim(), currentPage);
+    const { hits, totalHits } = await fetchHits(searchQuery, page);
+    removeLoading();
+
     maxPages = Math.ceil(totalHits / 40);
 
-    gallery.insertAdjacentHTML('beforeend', createMarkup(hits));
-    if (!firstSearch) {
-      Notiflix.Notify.success(`Hooray! We found ${totalHits} images.`);
+    if (searchQuery === '' || totalHits === 0) {
+      load.style.visibility = 'hidden';
+      return warning();
     }
-    lightbox.refresh();
-    if (currentPage < maxPages) {
-      observer.observe(loadMore);
+
+    load.style.visibility = 'visible';
+
+    success(totalHits);
+
+    gallery.insertAdjacentHTML('beforeend', createCard(hits));
+
+    if (page >= maxPages) {
+      load.style.visibility = 'hidden';
+      info();
     }
   } catch (error) {
-    Notiflix.Loading.remove();
-
-    Notiflix.Notify.failure(error.message);
+    error(error.message);
   }
-  firstSearch = false;
+
+  lightbox.refresh();
 }
 
-async function handlePagination(entries, observer) {
-  for (const entry of entries) {
-    if (entry.isIntersecting) {
-      currentPage += 1;
-
-      if (currentPage >= maxPages) {
-        observer.unobserve(entry.target);
-        Notiflix.Notify.warning(
-          "We're sorry, but you've reached the end of search results."
-        );
-      }
-      try {
-        const data = await getData(searchQuery, currentPage);
-
-        gallery.insertAdjacentHTML('beforeend', createMarkup(data.hits));
-        lightbox.refresh();
-      } catch (error) {
-        Notiflix.Notify.failure(error.message);
-      }
+async function onLoad(event) {
+  event.preventDefault();
+  page += 1;
+  loading();
+  try {
+    const { hits } = await fetchHits(searchQuery, page);
+    removeLoading();
+    if (page >= maxPages) {
+      load.style.visibility = 'hidden';
+      info();
     }
+    gallery.insertAdjacentHTML('beforeend', createCard(hits));
+  } catch (error) {
+    error(error.message);
   }
+
+  lightbox.refresh();
 }
